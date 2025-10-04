@@ -43,68 +43,78 @@ class MedianFinder:
 
 # Azure OpenAI Analysis
 '''
-### Summary of the Code
-This Python solution implements a `MedianFinder` class to find the median of a data stream efficiently. It uses two heaps:
-- `small`: a max-heap (simulated using negative values in a min-heap) to hold the smaller half of the numbers.
-- `large`: a min-heap to hold the larger half of the numbers.
+### Summary
+This solution implements a data structure to efficiently find the median from a data stream using two heaps:
+- **`small`**: A max heap implemented as a min heap with negative values, storing the smaller half of the numbers.
+- **`large`**: A min heap storing the larger half of the numbers.
 
-Numbers are added to one of the heaps; then the heaps are balanced so that their size difference is at most one. The median can be obtained by either the root of one heap (when count is odd) or the average of both roots (when count is even).
+When a new number is added via `addNum()`, it is pushed onto the `small` heap as a negative number. The code then balances the heaps to ensure the size difference is at most 1 and maintains the ordering such that all elements in `small` are ≤ all elements in `large`.
 
-### Time Complexity
-- `addNum(num)`: The main operations are heap insertions and removals. Each heap operation (`heappush`/`heappop`) is **O(log n)**. Balancing steps involve a constant number of these operations, so overall **O(log n)** per insertion.
-- `findMedian()`: This just accesses the top elements of the heaps, which is **O(1)**.
-
-### Space Complexity
-- The space used is proportional to the number of elements inserted, distributed between the two heaps. Hence, **O(n)** space where *n* is the count of numbers added so far.
-
-### Strengths
-- Uses a well-known two-heap approach that is optimal for streaming median calculation.
-- Balancing conditions ensure the heaps maintain size difference of at most one, which allows correct median calculation.
-- Efficient median retrieval in constant time.
-
-### Weaknesses
-- The balancing condition `if self.small and self.large and (-1 * self.small[0] > self.large[0]):` may miss some edge cases and cause some unnecessary heap swapping if more careful insertion order management is employed.
-- The balancing conditions could be simplified.
-- The code could benefit from more descriptive comments for readability.
-- There is a minor inefficiency in checking `self.small and self.large` before comparing their root values in `addNum()` when pushing into heaps; insertion logic could be optimized.
-- The readability of negative number trick for max-heap could be improved through clearer naming or helper functions.
-
-### Suggestions for Improvement
-1. **Simplify the insertion logic**: Instead of always pushing into `small` first and then balancing, consider pushing the new number into the appropriate heap directly:
-   - Push into `small` if empty or number is less than or equal to the max of `small`.
-   - Otherwise, push into `large`.
-   
-   Then balance the heaps—this can reduce the number of unnecessary heap operations.
-
-2. **Add clear comments** to describe the role of each heap and the balancing steps.
-
-3. **Use helper methods** to encapsulate logic such as balancing heaps or pushing elements, improving code readability.
-
-4. **Refactor median calculation** to explicitly handle odd or even counts to improve clarity.
-
-5. **Edge case handling**: Although current code likely works for all cases, adding unit tests or assertions would ensure robustness.
+The `findMedian()` method returns the median:
+- If one heap is larger, it returns the root of that heap.
+- If both heaps are equal size, it returns the average of the roots of both heaps.
 
 ---
 
-### Example improved insertion sketch (not full code):
+### Time Complexity
+- `addNum(num)`: O(log n) — Insertion into a heap and balancing the heaps involves a few heap push/pop operations, each O(log n).
+- `findMedian()`: O(1) — Median is found by peeking at top elements of the heaps.
+
+### Space Complexity
+- O(n) — The heaps together store all the inserted numbers (`n` is the number of elements added).
+
+---
+
+### Strengths
+- Efficient median retrieval in O(1) time.
+- Handles a dynamic stream of numbers incrementally.
+- Balances heaps well to maintain median correctness.
+- Uses a well-known and optimal approach with two heaps.
+
+---
+
+### Weaknesses
+- The first `if` check inside `addNum` (`if self.small and self.large and ...`) can be simplified or integrated into a more clear heap balancing logic.
+- The use of the first `heappush` always on `small` may cause unnecessary steps; typically, the number should be pushed on one heap or the other based on comparison rather than always on `small`.
+- Some repeated code, like negation and heap operations, can be wrapped into helper functions for clarity.
+- Lacks comments explaining the heap inversion and balancing strategy, which might be confusing.
+
+---
+
+### Suggestions for Improvement
+1. **Explicit insertion logic**: Instead of always pushing on `small`, first decide which heap the number belongs to by comparing it to current medians, then push — this can reduce unnecessary element movement.
+   
+2. **Better balancing routine**: After insertion, just balance heaps by size difference only, rather than conditionally popping from heaps.
+
+3. **Add comments** explaining the use of the negative values in `small` heap to represent a max heap.
+
+4. **Code readability**: Introduce helper methods, e.g., `balance_heaps()` or `push_num(num)`.
+
+5. **Edge cases**: explicitly handle the empty state in `findMedian()`, although LeetCode problem constraints may guarantee at least one number.
+
+---
+
+### Example of an improved `addNum` structure:
 
 ```python
 def addNum(self, num: int) -> None:
+    # Push to one of the heaps depending on num
     if not self.small or num <= -self.small[0]:
         heapq.heappush(self.small, -num)
     else:
         heapq.heappush(self.large, num)
-    
-    # Balance heaps
+
+    # Balance heaps to ensure size difference <= 1
     if len(self.small) > len(self.large) + 1:
         heapq.heappush(self.large, -heapq.heappop(self.small))
     elif len(self.large) > len(self.small) + 1:
         heapq.heappush(self.small, -heapq.heappop(self.large))
 ```
 
-This approach reduces the conditional complexity inside `addNum`.
+This approach removes the initial unconditional push to `small`, improving efficiency.
 
 ---
 
-Overall, the code implements a canonical solution to the problem with optimal time and space complexity but could benefit from minor restructuring and improved readability.
+### Overall
+This is a standard and efficient solution with some minor inefficiencies and clarity issues that can be improved. The time and space complexities are optimal for this problem.
 '''
