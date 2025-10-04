@@ -5,7 +5,7 @@
 # Memory: 21.2
 # Submission URL: https://leetcode.com/submissions/detail/1790654230/
 
-# GPT-3 Analysis: [Error fetching analysis from OpenAI]
+# GPT-4o Analysis: [Error fetching analysis from OpenAI]
 
 class Solution:
     def topKFrequent(self, nums: List[int], k: int) -> List[int]:

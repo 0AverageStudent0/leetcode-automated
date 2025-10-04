@@ -5,7 +5,7 @@
 # Memory: 17.6
 # Submission URL: https://leetcode.com/submissions/detail/1790654707/
 
-# GPT-3 Analysis: [Error fetching analysis from OpenAI]
+# GPT-4o Analysis: [Error fetching analysis from OpenAI]
 
 class Solution:
     def maxBottlesDrunk(self, numBottles: int, numExchange: int) -> int:
