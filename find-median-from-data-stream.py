@@ -43,101 +43,135 @@ class MedianFinder:
 
 # Azure OpenAI Analysis
 '''
-Here is the analysis of the provided solution for the "Find Median from Data Stream" problem:
+Certainly! Here's the analysis of the given code for the "Find Median from Data Stream" problem:
 
 ---
 
-### Summary
-The given solution uses two heaps to efficiently maintain the median of a stream of numbers:
-- `small` is a max-heap (implemented using a min heap by pushing negative values).
-- `large` is a min-heap.
+### Brief Summary
+The code implements a `MedianFinder` class that maintains a data structure to store a stream of numbers and efficiently find the median at any point. It uses two heaps:
+- A max-heap (`self.small`) to store the smaller half of the numbers (implemented using a min-heap with negated values).
+- A min-heap (`self.large`) to store the larger half of the numbers.
 
-The idea:
-- The `small` heap stores the smaller half of the numbers.
-- The `large` heap stores the larger half of the numbers.
-- The heaps are balanced such that their size difference is at most 1.
-- The median is derived either from the root of one of the heaps (if odd length) or the average of both roots (if even length).
+By balancing both heaps such that their sizes differ by no more than 1, it can quickly determine the median either as the top of one heap or the average of the tops of both heaps.
 
 ---
 
 ### Time Complexity
-- `addNum()`:
-  - `heapq.heappush` and `heapq.heappop` operations take O(log n) time,
-  - Since each `addNum` involves a constant number of heap operations,
-  - Overall: **O(log n)** per insertion.
-  
-- `findMedian()`:
-  - The median is retrieved by accessing the top elements of the heaps, which is O(1),
-  - Overall: **O(1)** for each median query.
+- `addNum(num)`: Each insertion involves a heap push and at most one or two heap pops/pushes. Each heap operation is **O(log n)**.
+- `findMedian()`: Accessing the top element(s) of heaps is **O(1)**.
+
+**Overall:**  
+- `addNum`: O(log n)  
+- `findMedian`: O(1)
 
 ---
 
 ### Space Complexity
-- The space used by the two heaps is proportional to the number of elements inserted,
-- Hence, total space complexity is **O(n)** for storing all elements in the two heaps.
+- Both heaps together store all elements added so far, so space used is **O(n)**, where n is the number of elements processed.
 
 ---
 
 ### Strengths
-- Uses the well-known two-heap approach that balances time and space efficiency.
-- Efficient median retrieval with O(1) time complexity.
-- Balances heaps correctly after each insertion maintaining invariants needed to find the median.
-- Implements a max-heap using negatives in Python’s min-heap cleanly.
+- Efficient time complexity for insertion and median retrieval suitable for a streaming scenario.
+- Uses a well-known and optimal approach with two heaps.
+- The logic to balance heaps and maintain the size property is correct.
+- Clean and straightforward implementation.
 
 ---
 
 ### Weaknesses
-- The balancing condition `if self.small and self.large and (-1 * self.small[0] > self.large[0])` ensures order but does not guarantee rebalancing at all times which might be unnecessary or could be simplified.
-- The rebalancing code occurs twice with similar logic but could be made more concise.
-- Pushing negative values can sometimes be confusing for readability.
-- There is some redundancy in heap size balancing steps which might cause inefficiencies or confusion.
-- The comments and code formatting can be improved for clarity.
-- `heapq` is used but not imported in the provided snippet; it is assumed to be imported outside the given code.
+- The first conditional in `addNum`:
+  ```python
+  if self.small and self.large and (-1 * self.small[0] > self.large[0]):
+  ```
+  This check is redundant or slightly misplaced because immediately after pushing into `self.small`, if top of `self.small` is greater than the top of `self.large`, elements should be moved between heaps to maintain ordering — but this condition only swaps one element and does not guarantee heaps are balanced afterward.
+  
+- The balancing conditions after that are:
+  ```python
+  if len(self.small) > len(self.large) + 1:
+      ...
+  if len(self.large) > len(self.small) + 1:
+      ...
+  ```
+  These ensure size balance but do not explicitly restore the order property between heaps except the first if-statement tries to do it.
+
+- There could be an unnecessary movement of elements when both heaps are empty, for example at the first insertion into an empty structure.
+
+- The code could use comments to improve readability.
+  
+- Import of `heapq` is missing (assuming it’s done outside snippet or it will cause a NameError).
 
 ---
 
 ### Suggestions for Improvement
-1. **Code clarity and readability**:
-   - Add import statement for `heapq` explicitly.
-   - Add comments explaining the purpose of each step, especially the balancing logic.
-   - Avoid repeating similar balancing code by combining the logic into one rebalance function.
+1. **Combine ordering and balancing in a clearer way:**
+   When inserting a number:
+   - Push into `self.small` (max-heap) by default.
+   - Then move the top element of `self.small` to `self.large` to ensure order property (`small` max ≤ `large` min).
+   - Then rebalance if the size difference is greater than 1.
 
-2. **Simplify balancing logic**:
-   - After pushing into `small`, always push the largest element from `small` to `large` if it violates the order of max in `small` and min in `large`.
-   - Then rebalance by sizes in a clean loop or simple if-else.
-
-3. **Use clearer variable names**:
-   - Instead of `small` and `large`, names like `max_heap` and `min_heap` could be more descriptive.
+   This approach is simpler and recommended in the common solutions to this problem.
+   
+2. **Add import statement:**
+   ```python
+   import heapq
+   ```
+   
+3. **Add comments to clarify each step**.
+   
+4. **Consider moving the negation logic into helper functions or comments to make intent clearer.**
+   
+5. **Add some validation or assertion tests within methods** (optional) for debugging.
 
 ---
 
-### Example improved balancing approach (conceptual):
+### Example of Improved `addNum` (pseudocode):
+```python
+def addNum(self, num: int) -> None:
+    heapq.heappush(self.small, -num)  # Push onto max heap with negation
+    # Move largest of small to large to maintain order property
+    if self.small and self.large and (-self.small[0] > self.large[0]):
+        val = -heapq.heappop(self.small)
+        heapq.heappush(self.large, val)
+
+    # Rebalance sizes to ensure difference ≤ 1
+    if len(self.small) > len(self.large) + 1:
+        val = -heapq.heappop(self.small)
+        heapq.heappush(self.large, val)
+    elif len(self.large) > len(self.small) + 1:
+        val = heapq.heappop(self.large)
+        heapq.heappush(self.small, -val)
+```
+
+Or alternatively, a common idiom is:
 
 ```python
 def addNum(self, num: int) -> None:
     heapq.heappush(self.small, -num)
-    # Move the largest from small to large to maintain order
-    if self.small and self.large and (-self.small[0] > self.large[0]):
+    # Balance the largest from small to large to maintain order
+    if self.small:
         val = -heapq.heappop(self.small)
         heapq.heappush(self.large, val)
-    
+
     # Rebalance sizes
-    if len(self.small) > len(self.large) + 1:
-        heapq.heappush(self.large, -heapq.heappop(self.small))
-    elif len(self.large) > len(self.small) + 1:
-        heapq.heappush(self.small, -heapq.heappop(self.large))
+    if len(self.large) > len(self.small) + 1:
+        val = heapq.heappop(self.large)
+        heapq.heappush(self.small, -val)
 ```
 
-Alternatively, simplify to the well-known pattern:
-- Push new number to `small`.
-- Pop max from `small` and push to `large`.
-- If sizes get unbalanced, move elements accordingly.
+---
+
+### Final Summary
+
+| Aspect            | Analysis                                  |
+|-------------------|-------------------------------------------|
+| Time Complexity   | O(log n) per insertion, O(1) median query |
+| Space Complexity  | O(n) total elements stored                |
+| Strengths         | Efficient two-heap approach, clean logic  |
+| Weaknesses        | Slightly confusing ordering logic, missing import, lacks comments |
+| Suggestions       | Refactor insertion logic for clarity, add imports and comments |
 
 ---
 
-**In summary, this solution is sound and efficient but could benefit from cleaner, more readable balancing logic and added comments.**
-
----
-
-Feel free to ask if you want me to rewrite the code following these improvements!
+I hope this detailed review helps improve your solution! Let me know if you'd like me to provide an improved full code version.
 '''
