@@ -43,96 +43,50 @@ class MedianFinder:
 
 # Azure OpenAI Analysis
 '''
-Here is the analysis of the provided Python3 solution for the "Find Median from Data Stream" problem:
+### Summary of the Code
+This Python solution implements a `MedianFinder` class to find the median of a data stream efficiently. It uses two heaps:
+- `small`: a max-heap (simulated using negative values in a min-heap) to hold the smaller half of the numbers.
+- `large`: a min-heap to hold the larger half of the numbers.
 
----
-
-### Summary
-
-The code implements a `MedianFinder` class which maintains running median from a data stream. It uses two heaps:
-- `self.small`: a max-heap implemented by pushing negative values into Python’s min-heap, which stores the smaller half of the numbers.
-- `self.large`: a min-heap, which stores the larger half of the numbers.
-
-In `addNum()`, the number is added to the `small` heap by default (as a negative), then the heaps are balanced by moving elements between them if necessary to maintain size constraints and ordering. The `findMedian()` method returns the median based on the size of the heaps:
-- If one heap has more elements, the median is the root element of that heap.
-- If both heaps have equal size, the median is the average of the roots of both heaps.
-
----
+Numbers are added to one of the heaps; then the heaps are balanced so that their size difference is at most one. The median can be obtained by either the root of one heap (when count is odd) or the average of both roots (when count is even).
 
 ### Time Complexity
-
-- `addNum(num)`:
-  - Inserting an element into a heap: O(log n)
-  - Balancing heaps involves at most one or two heap push/pop operations: O(log n)
-  - So, total time complexity per `addNum` call: **O(log n)**
-
-- `findMedian()`:
-  - Accessing the top element of heaps: O(1)
-  - Simple arithmetic operations: O(1)
-  - So, total time complexity per `findMedian` call: **O(1)**
-
----
+- `addNum(num)`: The main operations are heap insertions and removals. Each heap operation (`heappush`/`heappop`) is **O(log n)**. Balancing steps involve a constant number of these operations, so overall **O(log n)** per insertion.
+- `findMedian()`: This just accesses the top elements of the heaps, which is **O(1)**.
 
 ### Space Complexity
-
-- Two heaps collectively store all inserted numbers:
-- Each inserted number is stored once either in `small` or `large`.
-- So, space complexity is **O(n)** where n is the number of elements inserted.
-
----
+- The space used is proportional to the number of elements inserted, distributed between the two heaps. Hence, **O(n)** space where *n* is the count of numbers added so far.
 
 ### Strengths
-
-- Uses the optimal and commonly accepted approach of two heaps to maintain balance.
-- Efficient both in time and space.
-- Clear and straightforward balancing of two heaps after adding a number.
-- `findMedian()` runs in constant time, which is ideal for median queries.
-- Correctly handles both odd and even number of elements.
-
----
+- Uses a well-known two-heap approach that is optimal for streaming median calculation.
+- Balancing conditions ensure the heaps maintain size difference of at most one, which allows correct median calculation.
+- Efficient median retrieval in constant time.
 
 ### Weaknesses
-
-- The balancing logic between heaps in `addNum` is somewhat repetitive and can be simplified.
-- The condition `if self.small and self.large and (-1 * self.small[0] > self.large[0]):` might cause unnecessary work if not followed carefully (pushing and popping more than needed).
-- The code pushes the number always initially to `small` heap; some implementations push to the correct heap depending on the element value to reduce balancing steps.
-- The code always does 3 separate if conditions to balance the heaps. In some edge cases, the balancing can be done more cleanly.
-- No import statement for `heapq`. It is implied, but for standalone completeness, it should be included.
-
----
+- The balancing condition `if self.small and self.large and (-1 * self.small[0] > self.large[0]):` may miss some edge cases and cause some unnecessary heap swapping if more careful insertion order management is employed.
+- The balancing conditions could be simplified.
+- The code could benefit from more descriptive comments for readability.
+- There is a minor inefficiency in checking `self.small and self.large` before comparing their root values in `addNum()` when pushing into heaps; insertion logic could be optimized.
+- The readability of negative number trick for max-heap could be improved through clearer naming or helper functions.
 
 ### Suggestions for Improvement
+1. **Simplify the insertion logic**: Instead of always pushing into `small` first and then balancing, consider pushing the new number into the appropriate heap directly:
+   - Push into `small` if empty or number is less than or equal to the max of `small`.
+   - Otherwise, push into `large`.
+   
+   Then balance the heaps—this can reduce the number of unnecessary heap operations.
 
-1. **Add import statement** for `heapq` at the top to ensure the code runs standalone:
-   ```python
-   import heapq
-   ```
+2. **Add clear comments** to describe the role of each heap and the balancing steps.
 
-2. **Improve readability and balance logic:**
+3. **Use helper methods** to encapsulate logic such as balancing heaps or pushing elements, improving code readability.
 
-   Instead of pushing always to `small`, push conditionally:
-   ```python
-   if not self.small or num <= -self.small[0]:
-       heapq.heappush(self.small, -num)
-   else:
-       heapq.heappush(self.large, num)
-   ```
+4. **Refactor median calculation** to explicitly handle odd or even counts to improve clarity.
 
-   Then balance heaps sizes to ensure size difference is at most 1:
-   ```python
-   if len(self.small) > len(self.large) + 1:
-       heapq.heappush(self.large, -heapq.heappop(self.small))
-   elif len(self.large) > len(self.small) + 1:
-       heapq.heappush(self.small, -heapq.heappop(self.large))
-   ```
-
-3. **Optional:** Add comments for clarity to each major step.
-
-4. If desired, wrap the heap balancing in a method to keep `addNum` cleaner.
+5. **Edge case handling**: Although current code likely works for all cases, adding unit tests or assertions would ensure robustness.
 
 ---
 
-### Example of Improved `addNum` Method
+### Example improved insertion sketch (not full code):
 
 ```python
 def addNum(self, num: int) -> None:
@@ -141,25 +95,16 @@ def addNum(self, num: int) -> None:
     else:
         heapq.heappush(self.large, num)
     
-    # Balance the heaps so that the size difference is at most 1
+    # Balance heaps
     if len(self.small) > len(self.large) + 1:
         heapq.heappush(self.large, -heapq.heappop(self.small))
     elif len(self.large) > len(self.small) + 1:
         heapq.heappush(self.small, -heapq.heappop(self.large))
 ```
 
-This logic ensures fewer moves between heaps and is easier to understand.
+This approach reduces the conditional complexity inside `addNum`.
 
 ---
 
-# Summary of complexities:
-
-| Operation   | Time Complexity | Space Complexity |
-|-------------|-----------------|------------------|
-| addNum      | O(log n)        | O(n)             |
-| findMedian  | O(1)            | O(n)             |
-
----
-
-This code is a sound, efficient solution for the median from data stream problem with minor improvements possible in code clarity and heap balancing logic.
+Overall, the code implements a canonical solution to the problem with optimal time and space complexity but could benefit from minor restructuring and improved readability.
 '''
