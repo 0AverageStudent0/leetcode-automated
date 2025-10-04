@@ -5,7 +5,7 @@
 # Memory: 40.2
 # Submission URL: https://leetcode.com/submissions/detail/1790654417/
 
-# GPT-4o Analysis: [Error fetching analysis from OpenAI]
+# Azure OpenAI Analysis: [Azure OpenAI error: Unknown error]
 
 class MedianFinder:
 
