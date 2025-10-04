@@ -43,93 +43,107 @@ class MedianFinder:
 
 # Azure OpenAI Analysis
 '''
-Here is the analysis of the provided solution for the "Find Median from Data Stream" problem:
+Here's the detailed analysis of the provided code for the "Find Median from Data Stream" problem:
 
 ---
 
-### Summary of the code
+### Summary
 
-The solution maintains two heaps:
-- `small`: a max-heap simulated using Python's `heapq` by pushing negative values (to store the smaller half of the numbers)
-- `large`: a min-heap storing the larger half of the numbers
+The code implements a data structure `MedianFinder` that supports two operations: adding a number from a stream and finding the median of all added numbers efficiently. It uses two heaps:
 
-When a new number is added via `addNum`:
-1. It is pushed onto the `small` heap (as a negative value).
-2. The code ensures the max of the smaller half is not greater than the min of the larger half by swapping elements between heaps if necessary.
-3. It balances the heaps so that their sizes differ by at most 1.
+- `small` is a max-heap represented by a min-heap with negated values (to store the smaller half of the numbers).
+- `large` is a min-heap storing the larger half of the numbers.
 
-When `findMedian` is called:
-- If one heap is larger, the median is the root element of that heap.
-- If they are equal in size, the median is the average of the two root elements.
-
-This approach allows efficient retrieval of median numbers from a data stream.
+When a new number is added, it's initially pushed onto the `small` heap (after negation). The code then rebalances the heaps to maintain the order invariant (`max(small) <= min(large)`) and size property (heaps should not differ in size by more than one). The `findMedian` method then returns the median, which depends on the relative sizes of the two heaps.
 
 ---
 
-### Time complexity
+### Time Complexity
 
-- `addNum(num)`:
-  - Each insertion into a heap is O(log n).
-  - There can be up to 2 heap operations per call (push followed by potential pop/push to maintain balance).
-  - **Overall time complexity:** O(log n) per insertion.
+- **`addNum(num)`**:  
+  Each insertion involves pushing to one heap (`O(log n)`) and potentially popping and pushing between heaps once or twice (each `O(log n)`). Therefore, the overall time complexity for each addition is:  
+  **O(log n)**
 
-- `findMedian()`:
-  - Access to the root of the heaps is O(1).
-  - **Overall time complexity:** O(1).
+- **`findMedian()`**:  
+  Accessing the top elements of heaps is `O(1)`, so finding the median is:  
+  **O(1)**
 
 ---
 
-### Space complexity
+### Space Complexity
 
-- Two heaps store all the numbers added so far.
-- **Overall space complexity:** O(n), where n is the number of elements added.
+- The two heaps together store all the numbers seen so far  
+- Hence, space complexity is:  
+  **O(n)**, where n is the number of elements inserted.
 
 ---
 
 ### Strengths
 
-- Efficient median retrieval in O(1) time.
-- Balanced data structure keeps insertion in O(log n).
-- Uses heaps effectively to maintain two halves of the data.
-- Correct handling of max-heap in Python using negative values.
+- **Efficient median finding:** Using two heaps is a classic and optimal approach for this problem, supporting median retrieval in constant time.
+- **Rebalancing logic:** The code correctly balances the two heaps to keep their size difference at most one.
+- **Code correctness:** Seems to correctly handle cases where one heap can have one more element than the other.
 
 ---
 
 ### Weaknesses
 
-- The code pushes every new number directly to `small` first, which might be a little unintuitive. Usually, you decide which heap to push to first based on the new number to reduce rebalancing.
-- The conditional checks could be combined or clarified to avoid redundant comparisons.
-- Lack of inline comments or docstrings reduces readability.
-- Minor inefficiencies in heap balancing:
-  - The third if condition can be simplified with an `elif` since only one of these length conditions will hold true after insertion.
-- No explicit import statement for `heapq`. While it's known that this is needed, adding the import increases clarity for standalone code.
+- **Redundant checks in `addNum`:**  
+  The first conditional block checks `if self.small and self.large and (-1 * self.small[0] > self.large[0])`. This makes sense, but since `self.small` always has one element after the push and `self.large` might be empty, it can sometimes skip needing to balance. However, the size rebalancing logic can handle most cases, so this condition is slightly redundant and can be optimized.
+  
+- **No `import heapq`:**  
+  The code snippet does not import the `heapq` module, which is necessary for using `heappush` and `heappop`. Without this, the code will throw an error.
+
+- **Naming improvements:**  
+  Variable names like `small` and `large` could be made clearer, e.g., `max_heap` and `min_heap` or `left` and `right`.
+
+- **Potential minor inefficiency in rebalancing:**  
+  This code pushes every new element directly onto `small` before adjusting. A more typical approach pushes the new element to the heap it belongs to based on comparison with the current median, reducing rebalancing operations.
+
+- **No comments:**  
+  Lack of comments makes the code less readable for those unfamiliar with this approach.
 
 ---
 
-### Suggestions for improvement
+### Suggestions for Improvement
 
-1. **Add `import heapq`:** Make the code runnable independently.
-2. **Reconsider insertion logic:** 
-   - Insert the number into `large` or `small` based on comparison with existing root elements to reduce swaps.
-   - For example, push into `small` if the new number is less or equal to the max of `small`; otherwise `large`.
-3. **Simplify balancing logic:**
-   - Use `elif` for checking heap sizes since only one condition can be true after an insertion.
-4. **Add comments and docstrings:** Improve readability.
-5. **Improve variable naming:** For example, rename `small` to `max_heap` and `large` to `min_heap` for clarity.
-6. **Edge case handling:** Though currently valid, explicitly handle the case when heaps are empty in `findMedian`.
+1. **Add the missing import:**  
+   ```python
+   import heapq
+   ```
+
+2. **Push into the appropriate heap directly:**  
+   Modify `addNum` to decide where to push the new number first, reducing unnecessary moves. For example:
+
+   ```python
+   if not self.small or num <= -self.small[0]:
+       heapq.heappush(self.small, -num)
+   else:
+       heapq.heappush(self.large, num)
+   ```
+
+3. **Simplify rebalancing:**  
+   After pushing, just check if heaps need to be balanced by size difference and rebalance once per insertion.
+
+4. **Add comments and clearer variable names:**  
+   For example, rename `small` to `max_heap` and `large` to `min_heap` and add explanations.
+
+5. **Add guard in `findMedian` for empty case:**  
+   Though not required by the problem constraints, consider raising an error or returning a sentinel value if no numbers have been added before `findMedian` is called.
 
 ---
 
-### Revised snippet illustrating insertion logic improvement (pseudo):
+### Example optimized snippet for `addNum`
 
 ```python
 def addNum(self, num: int) -> None:
+    # Push into max_heap (small) or min_heap (large)
     if not self.small or num <= -self.small[0]:
         heapq.heappush(self.small, -num)
     else:
         heapq.heappush(self.large, num)
     
-    # Balance the heaps
+    # Balance sizes
     if len(self.small) > len(self.large) + 1:
         heapq.heappush(self.large, -heapq.heappop(self.small))
     elif len(self.large) > len(self.small) + 1:
@@ -138,11 +152,5 @@ def addNum(self, num: int) -> None:
 
 ---
 
-### Overall
-
-The solution is correct and efficient but can be improved in readability, insertion logic clarity, and code comments. The chosen approach is the standard optimal one for the problem.
-
----
-
-Let me know if you want a fully cleaned-up and commented version!
+**In summary:** The original code is mostly correct and efficient for the problem, but can be improved in clarity, robustness, and small logical optimizations.
 '''
