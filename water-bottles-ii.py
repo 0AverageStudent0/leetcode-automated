@@ -5,7 +5,7 @@
 # Memory: 17.6
 # Submission URL: https://leetcode.com/submissions/detail/1790654707/
 
-# Azure OpenAI Analysis: [Azure OpenAI error: Unknown error]
+# Azure OpenAI Analysis: [Azure OpenAI error: Unknown error | Status: 401 | Body: "Unauthorized\n"]
 
 class Solution:
     def maxBottlesDrunk(self, numBottles: int, numExchange: int) -> int:

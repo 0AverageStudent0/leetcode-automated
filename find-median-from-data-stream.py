@@ -5,7 +5,7 @@
 # Memory: 40.2
 # Submission URL: https://leetcode.com/submissions/detail/1790654417/
 
-# Azure OpenAI Analysis: [Azure OpenAI error: Unknown error]
+# Azure OpenAI Analysis: [Azure OpenAI error: Unknown error | Status: 401 | Body: "Unauthorized\n"]
 
 class MedianFinder:
 
