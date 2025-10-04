@@ -46,4 +46,26 @@ git clone https://github.com/<your-username>/<repo-name>.git
 code in main.js
 ---
 
+Environment Variables
+
+Create a .env file in your project root with the following variables:
+# LeetCode credentials
+LEETCODE_USERNAME=your_username
+LEETCODE_SESSION=your_session_cookie
+LEETCODE_CSRFTOKEN=your_csrf_token
+
+# GitHub credentials
+GITHUB_TOKEN=your_github_token
+GITHUB_REPO=owner/repo-name
+GITHUB_BRANCH=main
+
+# Azure OpenAI credentials
+AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com/
+AZURE_OPENAI_API_KEY=your_api_key
+AZURE_OPENAI_MODEL=gpt-4o
+
+# SendGrid credentials
+SENDGRID_API_KEY=your_sendgrid_api_key
+MAIL_TO=recipient@example.com
+MAIL_FROM=sender@example.com
 
