@@ -5,75 +5,6 @@
 # Memory: 40.2
 # Submission URL: https://leetcode.com/submissions/detail/1790654417/
 
-# Azure OpenAI Analysis: ### Summary
-# Azure OpenAI Analysis: The code implements a data structure `MedianFinder` that can efficiently find the median of a stream of numbers. It uses two heaps:
-# Azure OpenAI Analysis: - `small` as a max-heap implemented by pushing negated values into a min-heap.
-# Azure OpenAI Analysis: - `large` as a standard min-heap.
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: The `addNum` method adds a number to one of the heaps, then rebalances the heaps to ensure their size difference is at most 1. The `findMedian` method returns the median based on the top elements of these heaps.
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ---
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ### Time Complexity
-# Azure OpenAI Analysis: - **addNum(num)**: O(log n) due to heap insertion and popping operations.
-# Azure OpenAI Analysis: - **findMedian()**: O(1), since it only peeks at the top elements of the heaps.
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: Overall, for a stream of `n` elements, insertions take O(n log n), and medians can be queried in O(1).
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ---
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ### Space Complexity
-# Azure OpenAI Analysis: - O(n), where n is the number of elements added so far. Both heaps together store all elements.
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ---
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ### Strengths
-# Azure OpenAI Analysis: - **Efficient median finding**: The two-heap approach ensures median retrieval in constant time.
-# Azure OpenAI Analysis: - **Balanced heaps**: The code maintains the size invariants carefully for correct median calculation.
-# Azure OpenAI Analysis: - **Proper max-heap implementation**: Uses negation to transform Python's min-heap to max-heap for the `small` heap.
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ---
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ### Weaknesses
-# Azure OpenAI Analysis: - **Unnecessary condition in `addNum`**: The first `if self.small and self.large and (-1 * self.small[0] > self.large[0])` could be replaced by a more standard approach. Normally, insertion should be done by comparing with current median or root of heaps to decide which heap to insert into, rather than always pushing to `small` and then conditionally moving elements.
-# Azure OpenAI Analysis: - **Redundant rebalancing code**: The rebalancing logic is duplicated and may be simplified.
-# Azure OpenAI Analysis: - **Code readability**: Negations — especially double negations — make the code slightly harder to follow.
-# Azure OpenAI Analysis: - **No import statement for `heapq`**: The code snippet is missing `import heapq`.
-# Azure OpenAI Analysis: - **No error handling or input validation**: Although typical for LeetCode problems, a production-ready solution might consider these.
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ---
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ### Suggestions for Improvement
-# Azure OpenAI Analysis: 1. **Add `import heapq`** to ensure the code runs standalone.
-# Azure OpenAI Analysis: 2. **Insert elements more thoughtfully**: Instead of always pushing to `small`, decide based on the value of `num` relative to `small[0]` or `large[0]`. For example:
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis:    ```python
-# Azure OpenAI Analysis:    if not self.small or num <= -self.small[0]:
-# Azure OpenAI Analysis:        heapq.heappush(self.small, -num)
-# Azure OpenAI Analysis:    else:
-# Azure OpenAI Analysis:        heapq.heappush(self.large, num)
-# Azure OpenAI Analysis:    ```
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: 3. **Simplify rebalancing** to a single adjustment step, e.g.,
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis:    ```python
-# Azure OpenAI Analysis:    # Balance heaps so that their size difference is at most 1
-# Azure OpenAI Analysis:    if len(self.small) > len(self.large) + 1:
-# Azure OpenAI Analysis:        val = -heapq.heappop(self.small)
-# Azure OpenAI Analysis:        heapq.heappush(self.large, val)
-# Azure OpenAI Analysis:    elif len(self.large) > len(self.small) + 1:
-# Azure OpenAI Analysis:        val = heapq.heappop(self.large)
-# Azure OpenAI Analysis:        heapq.heappush(self.small, -val)
-# Azure OpenAI Analysis:    ```
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: 4. **Add comments** to clarify logic and heap roles.
-# Azure OpenAI Analysis: 5. If frequent median querying is expected, this approach is suitable. Otherwise, consider alternatives (like balanced BSTs) if other operations are needed.
-# Azure OpenAI Analysis: 6. **Test edge cases** such as empty data stream, very large numbers, or many duplicates.
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ---
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: **Overall, the code is functional and efficient but can be improved for readability, clarity, and maintainability by modifying insertion logic and simplifying rebalancing.**
-
 class MedianFinder:
 
     def __init__(self):
@@ -109,3 +40,126 @@ class MedianFinder:
 # obj = MedianFinder()
 # obj.addNum(num)
 # param_2 = obj.findMedian()
+
+# Azure OpenAI Analysis
+'''
+Here is the analysis of the provided Python3 solution for the "Find Median from Data Stream" problem:
+
+---
+
+### Summary
+
+The code implements a `MedianFinder` class which maintains running median from a data stream. It uses two heaps:
+- `self.small`: a max-heap implemented by pushing negative values into Python’s min-heap, which stores the smaller half of the numbers.
+- `self.large`: a min-heap, which stores the larger half of the numbers.
+
+In `addNum()`, the number is added to the `small` heap by default (as a negative), then the heaps are balanced by moving elements between them if necessary to maintain size constraints and ordering. The `findMedian()` method returns the median based on the size of the heaps:
+- If one heap has more elements, the median is the root element of that heap.
+- If both heaps have equal size, the median is the average of the roots of both heaps.
+
+---
+
+### Time Complexity
+
+- `addNum(num)`:
+  - Inserting an element into a heap: O(log n)
+  - Balancing heaps involves at most one or two heap push/pop operations: O(log n)
+  - So, total time complexity per `addNum` call: **O(log n)**
+
+- `findMedian()`:
+  - Accessing the top element of heaps: O(1)
+  - Simple arithmetic operations: O(1)
+  - So, total time complexity per `findMedian` call: **O(1)**
+
+---
+
+### Space Complexity
+
+- Two heaps collectively store all inserted numbers:
+- Each inserted number is stored once either in `small` or `large`.
+- So, space complexity is **O(n)** where n is the number of elements inserted.
+
+---
+
+### Strengths
+
+- Uses the optimal and commonly accepted approach of two heaps to maintain balance.
+- Efficient both in time and space.
+- Clear and straightforward balancing of two heaps after adding a number.
+- `findMedian()` runs in constant time, which is ideal for median queries.
+- Correctly handles both odd and even number of elements.
+
+---
+
+### Weaknesses
+
+- The balancing logic between heaps in `addNum` is somewhat repetitive and can be simplified.
+- The condition `if self.small and self.large and (-1 * self.small[0] > self.large[0]):` might cause unnecessary work if not followed carefully (pushing and popping more than needed).
+- The code pushes the number always initially to `small` heap; some implementations push to the correct heap depending on the element value to reduce balancing steps.
+- The code always does 3 separate if conditions to balance the heaps. In some edge cases, the balancing can be done more cleanly.
+- No import statement for `heapq`. It is implied, but for standalone completeness, it should be included.
+
+---
+
+### Suggestions for Improvement
+
+1. **Add import statement** for `heapq` at the top to ensure the code runs standalone:
+   ```python
+   import heapq
+   ```
+
+2. **Improve readability and balance logic:**
+
+   Instead of pushing always to `small`, push conditionally:
+   ```python
+   if not self.small or num <= -self.small[0]:
+       heapq.heappush(self.small, -num)
+   else:
+       heapq.heappush(self.large, num)
+   ```
+
+   Then balance heaps sizes to ensure size difference is at most 1:
+   ```python
+   if len(self.small) > len(self.large) + 1:
+       heapq.heappush(self.large, -heapq.heappop(self.small))
+   elif len(self.large) > len(self.small) + 1:
+       heapq.heappush(self.small, -heapq.heappop(self.large))
+   ```
+
+3. **Optional:** Add comments for clarity to each major step.
+
+4. If desired, wrap the heap balancing in a method to keep `addNum` cleaner.
+
+---
+
+### Example of Improved `addNum` Method
+
+```python
+def addNum(self, num: int) -> None:
+    if not self.small or num <= -self.small[0]:
+        heapq.heappush(self.small, -num)
+    else:
+        heapq.heappush(self.large, num)
+    
+    # Balance the heaps so that the size difference is at most 1
+    if len(self.small) > len(self.large) + 1:
+        heapq.heappush(self.large, -heapq.heappop(self.small))
+    elif len(self.large) > len(self.small) + 1:
+        heapq.heappush(self.small, -heapq.heappop(self.large))
+```
+
+This logic ensures fewer moves between heaps and is easier to understand.
+
+---
+
+# Summary of complexities:
+
+| Operation   | Time Complexity | Space Complexity |
+|-------------|-----------------|------------------|
+| addNum      | O(log n)        | O(n)             |
+| findMedian  | O(1)            | O(n)             |
+
+---
+
+This code is a sound, efficient solution for the median from data stream problem with minor improvements possible in code clarity and heap balancing logic.
+'''
