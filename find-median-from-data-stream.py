@@ -5,99 +5,74 @@
 # Memory: 40.2
 # Submission URL: https://leetcode.com/submissions/detail/1790654417/
 
-# Azure OpenAI Analysis: **Summary:**  
-# Azure OpenAI Analysis: This Python solution implements a `MedianFinder` class that maintains a running median from a stream of numbers using two heaps: a max-heap (`small`) for the smaller half of numbers and a min-heap (`large`) for the larger half. The approach balances these two heaps to efficiently provide the median in O(1) time after O(log n) insertion time.
+# Azure OpenAI Analysis: ### Summary
+# Azure OpenAI Analysis: The code implements a data structure `MedianFinder` that can efficiently find the median of a stream of numbers. It uses two heaps:
+# Azure OpenAI Analysis: - `small` as a max-heap implemented by pushing negated values into a min-heap.
+# Azure OpenAI Analysis: - `large` as a standard min-heap.
+# Azure OpenAI Analysis: 
+# Azure OpenAI Analysis: The `addNum` method adds a number to one of the heaps, then rebalances the heaps to ensure their size difference is at most 1. The `findMedian` method returns the median based on the top elements of these heaps.
 # Azure OpenAI Analysis: 
 # Azure OpenAI Analysis: ---
 # Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: **Strengths:**  
-# Azure OpenAI Analysis: 1. **Efficient Approach:** The use of two heaps (a max heap via negation in Python, and a min heap) is a classic and optimal way to find the median in a data stream.
-# Azure OpenAI Analysis: 2. **Balancing Heaps:** The code correctly balances the heaps so that their sizes differ by at most one, which ensures correct median retrieval.
-# Azure OpenAI Analysis: 3. **Correct Median Calculation:** The median is correctly calculated depending on the relative sizes of the heaps.
-# Azure OpenAI Analysis: 4. **Readable:** Code is fairly straightforward and easy to understand for those familiar with the two heap method.
+# Azure OpenAI Analysis: ### Time Complexity
+# Azure OpenAI Analysis: - **addNum(num)**: O(log n) due to heap insertion and popping operations.
+# Azure OpenAI Analysis: - **findMedian()**: O(1), since it only peeks at the top elements of the heaps.
+# Azure OpenAI Analysis: 
+# Azure OpenAI Analysis: Overall, for a stream of `n` elements, insertions take O(n log n), and medians can be queried in O(1).
 # Azure OpenAI Analysis: 
 # Azure OpenAI Analysis: ---
 # Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: **Weaknesses:**  
-# Azure OpenAI Analysis: 1. **Missing `import heapq`:** The code does not import the `heapq` module, which will cause a `NameError` on usage.
-# Azure OpenAI Analysis: 2. **Redundant heap condition check:** In `addNum()`, the first `if` condition checks `if self.small and self.large and ...`. The check for `self.small` is redundant because `small` always receives the new element first before any balancing.
-# Azure OpenAI Analysis: 3. **Heap balancing could be streamlined:** The heap balancing code can be slightly simplified by focusing on balance rather than separate conditions; currently code repeats popping and pushing operations.
-# Azure OpenAI Analysis: 4. **No edge case handling or input validation:** There’s no explicit input validation (although generally not required on LeetCode).
-# Azure OpenAI Analysis: 5. **Code comments and docstrings:** There are no comments or explanations inside methods, which could help readability.
-# Azure OpenAI Analysis: 6. **Class attribute naming:** Variable names `small` and `large` are somewhat non-standard; commonly `max_heap` and `min_heap` could be clearer.
-# Azure OpenAI Analysis: 7. **Minor inconsistency:** When pushing negated values into `small`, negation is applied twice (`-1 *`), which is fine but can be replaced with `-num` for cleaner code.
+# Azure OpenAI Analysis: ### Space Complexity
+# Azure OpenAI Analysis: - O(n), where n is the number of elements added so far. Both heaps together store all elements.
 # Azure OpenAI Analysis: 
 # Azure OpenAI Analysis: ---
 # Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: **Suggestions for Improvement:**  
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: - Add `import heapq` at the top.  
-# Azure OpenAI Analysis: - Replace `-1 * num` with `-num` for readability.  
-# Azure OpenAI Analysis: - Simplify the heap balancing logic, for example:
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis:   ```python
-# Azure OpenAI Analysis:   def addNum(self, num: int) -> None:
-# Azure OpenAI Analysis:       heapq.heappush(self.small, -num)
-# Azure OpenAI Analysis:       # Ensure the max element of small is <= min element of large
-# Azure OpenAI Analysis:       if self.large and (-self.small[0] > self.large[0]):
-# Azure OpenAI Analysis:           val = -heapq.heappop(self.small)
-# Azure OpenAI Analysis:           heapq.heappush(self.large, val)
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis:       # Balance sizes
-# Azure OpenAI Analysis:       if len(self.small) > len(self.large) + 1:
-# Azure OpenAI Analysis:           val = -heapq.heappop(self.small)
-# Azure OpenAI Analysis:           heapq.heappush(self.large, val)
-# Azure OpenAI Analysis: 
-# Azure OpenAI Analysis:       elif len(self.large) > len(self.small) + 1:
-# Azure OpenAI Analysis:           val = heapq.heappop(self.large)
-# Azure OpenAI Analysis:           heapq.heappush(self.small, -val)
-# Azure OpenAI Analysis:   ```
-# Azure OpenAI Analysis:   
-# Azure OpenAI Analysis: - Add a couple of docstrings and comments explaining key steps.  
-# Azure OpenAI Analysis: - Rename `small` and `large` to `max_heap` and `min_heap` (optional but helps clarity).  
-# Azure OpenAI Analysis: - Consider adding type hints at the class attribute level for readability (Python 3.6+).  
-# Azure OpenAI Analysis: - Add minimal unit tests or example usage in comments for demonstration.
+# Azure OpenAI Analysis: ### Strengths
+# Azure OpenAI Analysis: - **Efficient median finding**: The two-heap approach ensures median retrieval in constant time.
+# Azure OpenAI Analysis: - **Balanced heaps**: The code maintains the size invariants carefully for correct median calculation.
+# Azure OpenAI Analysis: - **Proper max-heap implementation**: Uses negation to transform Python's min-heap to max-heap for the `small` heap.
 # Azure OpenAI Analysis: 
 # Azure OpenAI Analysis: ---
 # Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: **Example of slightly improved code snippet:**
+# Azure OpenAI Analysis: ### Weaknesses
+# Azure OpenAI Analysis: - **Unnecessary condition in `addNum`**: The first `if self.small and self.large and (-1 * self.small[0] > self.large[0])` could be replaced by a more standard approach. Normally, insertion should be done by comparing with current median or root of heaps to decide which heap to insert into, rather than always pushing to `small` and then conditionally moving elements.
+# Azure OpenAI Analysis: - **Redundant rebalancing code**: The rebalancing logic is duplicated and may be simplified.
+# Azure OpenAI Analysis: - **Code readability**: Negations — especially double negations — make the code slightly harder to follow.
+# Azure OpenAI Analysis: - **No import statement for `heapq`**: The code snippet is missing `import heapq`.
+# Azure OpenAI Analysis: - **No error handling or input validation**: Although typical for LeetCode problems, a production-ready solution might consider these.
 # Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: ```python
-# Azure OpenAI Analysis: import heapq
+# Azure OpenAI Analysis: ---
 # Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: class MedianFinder:
-# Azure OpenAI Analysis:     def __init__(self):
-# Azure OpenAI Analysis:         # max_heap stores the smaller half (negated values)
-# Azure OpenAI Analysis:         self.max_heap = []
-# Azure OpenAI Analysis:         # min_heap stores the larger half
-# Azure OpenAI Analysis:         self.min_heap = []
+# Azure OpenAI Analysis: ### Suggestions for Improvement
+# Azure OpenAI Analysis: 1. **Add `import heapq`** to ensure the code runs standalone.
+# Azure OpenAI Analysis: 2. **Insert elements more thoughtfully**: Instead of always pushing to `small`, decide based on the value of `num` relative to `small[0]` or `large[0]`. For example:
 # Azure OpenAI Analysis: 
-# Azure OpenAI Analysis:     def addNum(self, num: int) -> None:
-# Azure OpenAI Analysis:         heapq.heappush(self.max_heap, -num)
+# Azure OpenAI Analysis:    ```python
+# Azure OpenAI Analysis:    if not self.small or num <= -self.small[0]:
+# Azure OpenAI Analysis:        heapq.heappush(self.small, -num)
+# Azure OpenAI Analysis:    else:
+# Azure OpenAI Analysis:        heapq.heappush(self.large, num)
+# Azure OpenAI Analysis:    ```
 # Azure OpenAI Analysis: 
-# Azure OpenAI Analysis:         # Ensure every number in max_heap <= min_heap
-# Azure OpenAI Analysis:         if self.min_heap and (-self.max_heap[0] > self.min_heap[0]):
-# Azure OpenAI Analysis:             val = -heapq.heappop(self.max_heap)
-# Azure OpenAI Analysis:             heapq.heappush(self.min_heap, val)
+# Azure OpenAI Analysis: 3. **Simplify rebalancing** to a single adjustment step, e.g.,
 # Azure OpenAI Analysis: 
-# Azure OpenAI Analysis:         # Balance the heaps sizes
-# Azure OpenAI Analysis:         if len(self.max_heap) > len(self.min_heap) + 1:
-# Azure OpenAI Analysis:             val = -heapq.heappop(self.max_heap)
-# Azure OpenAI Analysis:             heapq.heappush(self.min_heap, val)
-# Azure OpenAI Analysis:         elif len(self.min_heap) > len(self.max_heap) + 1:
-# Azure OpenAI Analysis:             val = heapq.heappop(self.min_heap)
-# Azure OpenAI Analysis:             heapq.heappush(self.max_heap, -val)
+# Azure OpenAI Analysis:    ```python
+# Azure OpenAI Analysis:    # Balance heaps so that their size difference is at most 1
+# Azure OpenAI Analysis:    if len(self.small) > len(self.large) + 1:
+# Azure OpenAI Analysis:        val = -heapq.heappop(self.small)
+# Azure OpenAI Analysis:        heapq.heappush(self.large, val)
+# Azure OpenAI Analysis:    elif len(self.large) > len(self.small) + 1:
+# Azure OpenAI Analysis:        val = heapq.heappop(self.large)
+# Azure OpenAI Analysis:        heapq.heappush(self.small, -val)
+# Azure OpenAI Analysis:    ```
 # Azure OpenAI Analysis: 
-# Azure OpenAI Analysis:     def findMedian(self) -> float:
-# Azure OpenAI Analysis:         if len(self.max_heap) > len(self.min_heap):
-# Azure OpenAI Analysis:             return float(-self.max_heap[0])
-# Azure OpenAI Analysis:         elif len(self.min_heap) > len(self.max_heap):
-# Azure OpenAI Analysis:             return float(self.min_heap[0])
-# Azure OpenAI Analysis:         else:
-# Azure OpenAI Analysis:             return (-self.max_heap[0] + self.min_heap[0]) / 2
-# Azure OpenAI Analysis: ```
+# Azure OpenAI Analysis: 4. **Add comments** to clarify logic and heap roles.
+# Azure OpenAI Analysis: 5. If frequent median querying is expected, this approach is suitable. Otherwise, consider alternatives (like balanced BSTs) if other operations are needed.
+# Azure OpenAI Analysis: 6. **Test edge cases** such as empty data stream, very large numbers, or many duplicates.
 # Azure OpenAI Analysis: 
-# Azure OpenAI Analysis: Overall, the solution correctly implements the median finder with the standard two heap method but can be polished for readability, robustness, and completeness.
+# Azure OpenAI Analysis: ---
+# Azure OpenAI Analysis: 
+# Azure OpenAI Analysis: **Overall, the code is functional and efficient but can be improved for readability, clarity, and maintainability by modifying insertion logic and simplifying rebalancing.**
 
 class MedianFinder:
 
