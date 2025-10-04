@@ -36,75 +36,83 @@ class Solution:
 
 # Azure OpenAI Analysis
 '''
-**Summary:**  
-The provided code implements the "String to Integer (atoi)" function. It first trims leading whitespace, checks for an optional sign, then uses a recursive helper function to parse the digit characters one-by-one, accumulating the integer value. The recursion stops when a non-digit character is encountered or the string ends, and clamps the result within the 32-bit signed integer range. The final integer, signed appropriately, is returned.
+### Summary of the code
+This Python solution implements the "String to Integer (atoi)" problem using:
+- Initial stripping of leading whitespace.
+- Handling optional sign characters `+` or `-`.
+- Recursive parsing of the digit characters to build the integer value.
+- Clamping the result to the 32-bit signed integer range ([−2³¹,  2³¹−1]).
+- Returns 0 if the string is empty or doesn't contain valid digits after optional sign.
+
+### Time complexity
+- Each character in the string is processed at most once in the recursive helper function.
+- Let n = length of the input string.
+- Time complexity is **O(n)**.
+
+### Space complexity
+- Recursive calls depth depends on the number of digits processed. In the worst case, this could be O(n).
+- So space complexity due to recursion stack is **O(n)**.
+- Other than recursion, constant additional space is used.
+
+### Strengths
+- Correctly implements all steps required by the problem:
+  - Handling whitespace.
+  - Handling sign.
+  - Clamping to integer bounds.
+- Uses recursion in an elegant and clean way to parse and accumulate the digits.
+- Code is clear and easy to follow.
+
+### Weaknesses
+- Recursive approach causes O(n) call stack space, which can be a problem for very long numeric strings (stack overflow risk).
+- Parsing digits one-by-one using recursion can be less efficient than iteration.
+- No explicit handling of non-digit characters after the initial digit sequence (though it works by stopping parsing).
+- `lstrip()` creates a new string, which is fine but could be avoided by moving index instead.
+- Multiplying by `sign` multiple times in each recursion call is slightly inefficient.
+
+### Suggestions for improvement
+- Convert the recursion to an iterative approach to reduce space complexity from O(n) to O(1).
+- Use a simple loop to parse the digits, stop when a non-digit is encountered.
+- Avoid repeated multiplication by `sign` in each recursion; multiply once at the end.
+- Instead of `lstrip()`, consider advancing an index to skip whitespace to avoid creating a copy.
+- Add boundary checks using intermediate checks before multiplication/addition to prevent integer overflow during parsing.
+- Add comments or docstring for better readability.
 
 ---
 
-**Time Complexity:**  
-- O(n), where n is the length of the string after leading whitespace is removed.  
-- The recursion processes each digit one at a time, so it makes at most one recursive call per digit.
-
-**Space Complexity:**  
-- O(n) due to recursion call stack depth, which can be as large as the number of digits parsed (up to n).  
-- No additional data structures are used beyond the call stack.
-
----
-
-**Strengths:**  
-- Correctly handles leading whitespace with `lstrip()`.  
-- Handles optional '+' and '-' sign in a clear manner.  
-- Uses recursion cleanly to process digits sequentially.  
-- Correctly clamps the output within INT_MIN and INT_MAX.  
-- Returns 0 immediately if string is empty after trimming whitespace.  
-
----
-
-**Weaknesses:**  
-- Recursive approach leads to O(n) call stack usage, which could risk stack overflow for long input strings with many digits.  
-- Multiplying `parsed * sign` multiple times in the recursion is slightly inefficient; can be optimized by applying sign once.  
-- Mixing sign logic inside the recursive function may reduce clarity and efficiency.  
-- No explicit handling or early stopping when the integer already exceeds INT_MAX/INT_MIN before fully parsing digits; although it is checked after each digit, more optimal stopping could reduce calls.  
-- The code does not explicitly handle trailing characters but relies on the first non-digit as stopping condition (which is correct per problem specs).
-
----
-
-**Suggestions for Improvement:**  
-1. Replace recursion with an iterative loop to avoid stack overflow and reduce call overhead—improves both space complexity (O(1)) and practical performance.  
-2. Apply the sign once at the end instead of in every recursive call, to reduce unnecessary multiplication.  
-3. Add early stopping as soon as the number exceeds INT_MAX or INT_MIN when constructing the number, to avoid unnecessary parsing.  
-4. Consider adding comments or docstrings for clarity.  
-5. Optionally, handle edge cases explicitly, like empty string or strings with no digits, though current code already returns 0 in such cases effectively.  
-
----
-
-### Example iteratively improved snippet sketch:
+### Example iterative approach for improvement
 
 ```python
-def myAtoi(s: str) -> int:
-    s = s.lstrip()
-    if not s:
-        return 0
-
-    INT_MAX, INT_MIN = 2**31 - 1, -2**31
-    sign = 1
-    idx = 0
-
-    if s[0] in '+-':
-        sign = -1 if s[0] == '-' else 1
-        idx += 1
-
-    parsed = 0
-    while idx < len(s) and s[idx].isdigit():
-        digit = int(s[idx])
-        # Check overflow before multiplying by 10
-        if parsed > (INT_MAX - digit) // 10:
-            return INT_MAX if sign == 1 else INT_MIN
-        parsed = parsed * 10 + digit
-        idx += 1
-
-    return sign * parsed
+class Solution:
+    def myAtoi(self, s: str) -> int:
+        INT_MAX = 2**31 - 1
+        INT_MIN = -2**31
+        
+        i, n = 0, len(s)
+        # Skip leading whitespace
+        while i < n and s[i] == ' ':
+            i += 1
+        
+        if i == n:
+            return 0
+        
+        # Check sign
+        sign = 1
+        if s[i] == '+':
+            i += 1
+        elif s[i] == '-':
+            sign = -1
+            i += 1
+        
+        result = 0
+        while i < n and s[i].isdigit():
+            digit = int(s[i])
+            # Check for overflow
+            if result > (INT_MAX - digit) // 10:
+                return INT_MAX if sign == 1 else INT_MIN
+            result = result * 10 + digit
+            i += 1
+        
+        return sign * result
 ```
-
-This approach improves space to O(1) and keeps time O(n), making it more suitable for large inputs.
+This approach is O(n) time and O(1) space and more robust for long inputs.
 '''
