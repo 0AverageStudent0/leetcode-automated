@@ -1,75 +1,49 @@
-==========================================================
-LeetCode to GitHub Automation
-==========================================================
+# LeetCode Daily Automation & AI Code Analysis
 
-Automatically sync your daily LeetCode submissions to a 
-GitHub repository.
+## Overview
+This repository contains my **LeetCode solutions**, automatically submitted daily through my **Turbotic AI-powered automation pipeline**. Each solution includes:
+- Problem metadata (title, language, runtime, memory, submission URL)
+- **AI-assisted code analysis** using Azure OpenAI
+- Daily commits for consistent tracking
+This project ensures **consistent DSA practice**, provides **verifiable proof of work**, and improves problem-solving skills through AI analysis.
 
-----------------------------------------------------------
-SETUP
-----------------------------------------------------------
+## Features
+- **Automated Daily Commits** – Solutions solved on LeetCode are automatically committed to this repository.
+- **AI-Powered Code Analysis** – Each solution is analyzed for:
+  - Code summary
+  - Time and space complexity
+  - Strengths and weaknesses
+  - Suggestions for improvement
+- **Daily Email Summary** – Summary of solved problems and links to GitHub commits.
+- **Consistent DSA Practice** – Encourages daily problem-solving and progress tracking.
 
-# Environment Variables (must be set in your workspace)
+## Tech Stack
+- **Node.js** – Automation scripting
+- **LeetCode-query** – Fetch submissions
+- **Azure OpenAI** – AI-powered analysis
+- **GitHub API (Octokit)** – Automated commits
+- **SendGrid** – Daily email summaries
+- **Moment.js** – Date handling
 
-LEETCODE_USERNAME   = Your LeetCode username
-LEETCODE_SESSION    = Your LeetCode session token (for API access)
-LEETCODE_CSRFTOKEN  = Your LeetCode CSRF token (for API access)
-GITHUB_TOKEN        = A GitHub personal access token with repo write permissions
-GITHUB_REPO         = Target GitHub repository (owner/repo OR full URL OR SSH format)
-GITHUB_BRANCH       = Branch to commit to (default: main)
+## Automation Script
+All automation logic is implemented in **`main.js`**, including:
+- Fetching submissions from LeetCode
+- Analyzing code with Azure OpenAI
+- Committing annotated solutions to GitHub
+- Sending daily summary emails
 
-# Permissions
-- GITHUB_TOKEN must allow pushing commits to the specified repo + branch
+## Motivation
+During college, I solved many LeetCode problems but had little proof of consistent work for placements. This automation:
+- Submits solutions to GitHub automatically
+- Provides AI-assisted insights for each solution
+- Sends daily email reminders to track progress
+It bridges the gap between **practice and proof**, while enhancing **DSA skills** for placement preparation.
 
-# LeetCode
-- You must have at least one submission for today (UTC)
-
-----------------------------------------------------------
-DEPENDENCIES
-----------------------------------------------------------
-
-Install required npm packages:
-    npm install leetcode-query moment octokit
-
-Built-in (no install needed):
-    fs
-    path
-
-Packages:
-- leetcode-query : Fetch LeetCode submissions and code
-- moment         : UTC date/time handling
-- octokit        : GitHub API for commits
-- fs             : File system operations
-- path           : File path handling
-
-----------------------------------------------------------
-HOW IT WORKS
-----------------------------------------------------------
-
-1. Fetch today's (UTC) submissions from LeetCode
-2. Save each distinct submission as a file
-3. Commit all files to the target GitHub repo + branch 
-   in a single commit
-
-----------------------------------------------------------
-EXAMPLE
-----------------------------------------------------------
-
-# .env file
-
-LEETCODE_USERNAME=johndoe
-LEETCODE_SESSION=abcd1234
-LEETCODE_CSRFTOKEN=wxyz5678
-GITHUB_TOKEN=ghp_1234567890
-GITHUB_REPO=johndoe/leetcode-solutions
-GITHUB_BRANCH=main
+## How to Use
+Clone the repository:
+```bash
+git clone https://github.com/<your-username>/<repo-name>.git
+code in main.js
+---
 
 
-# Run automation
-
-npm start
-
-==========================================================
-----------------------------------------------------------
-CODE IN main.js
-----------------------------------------------------------
