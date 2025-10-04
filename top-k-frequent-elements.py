@@ -21,84 +21,108 @@ class Solution:
 
 # Azure OpenAI Analysis
 '''
-Here is the analysis of the given solution code for the "Top K Frequent Elements" problem.
+Here is the detailed analysis of the provided solution for the "Top K Frequent Elements" problem:
 
 ---
 
 ### Summary
 
-The code finds the `k` most frequent elements in the list `nums`. It counts the frequency of each number using a dictionary (defaultdict), then uses a max heap (by pushing negative frequencies) to retrieve the top `k` elements with the highest frequency.
+The code finds the `k` most frequent elements in the list `nums`. It first counts the frequency of each element using a dictionary, then inserts all elements along with their negative frequencies into a min-heap to simulate a max-heap (since Python’s `heapq` is a min-heap by default). Finally, it extracts the top `k` frequent elements by popping from the heap.
 
 ---
 
 ### Time Complexity
 
-- Counting frequencies: O(n), where n = len(nums).
-- Building the heap: O(m log m), where m = number of unique elements (size of count dictionary).
-- Extracting top k elements: O(k log m).
-
-Because `k <= m <= n`, the overall complexity is:
-
-**O(n + m log m + k log m)**
-
-which simplifies approximately to:
-
-**O(n log m)** in the worst case (if m is proportional to n).
+- Counting frequencies: `O(N)`, where `N` is the length of `nums`.
+- Building the heap: `O(M log M)`, where `M` is the number of unique elements in `nums` (since pushing each unique element onto the heap costs `O(log M)`).
+- Extracting `k` elements: `O(k log M)` due to popping from the heap.
+  
+Overall complexity:  
+**O(N + M log M + k log M)**  
+In the worst case, when all elements are unique (`M = N`), this simplifies to:  
+**O(N log N)**
 
 ---
 
 ### Space Complexity
 
-- Frequency dictionary: O(m)
-- Heap: O(m)
-- Result list: O(k)
+- Frequency dictionary: `O(M)` for storing frequencies.
+- Heap: `O(M)` for all unique elements.
+- Result array: `O(k)`.
 
-Total space complexity: **O(m + k)**
+Overall space complexity:  
+**O(M + k)** (dominated by `O(M)`)
 
 ---
 
 ### Strengths
 
-- Correctly uses a max heap (through negative counts) to get the top k frequent elements.
-- Simple and clear approach which is easy to understand.
-- Uses Python built-in modules (`defaultdict` and `heapq`) effectively.
+- Clear and straightforward implementation using standard data structures.
+- Correct use of min-heap with negative counts to simulate a max-heap.
+- Easy to understand and maintain.
 
 ---
 
 ### Weaknesses
 
-- The heap stores all unique elements, which can be inefficient if the number of unique elements is large.
-- Pushing all elements into the heap (size m) costs O(m log m), which could be optimized.
-- Does not leverage Python's `Counter` from collections which can simplify frequency counting and provide a `most_common` method.
+- The heap stores all unique elements, which can be inefficient if `M` (number of unique elements) is large.
+- Time complexity for building the heap is `O(M log M)`, which is not optimal if `k` is much smaller than `M`.
+- The code could be optimized by using a heap of size `k` to avoid pushing all elements.
 
 ---
 
 ### Suggestions for Improvement
 
-1. **Use a Min Heap of Fixed Size k:**  
-   Instead of pushing all elements into the heap, push only k elements and push new ones only if their count is higher than the smallest in the heap. This reduces heap size and speeds up the operations when k is much smaller than m.
+1. **Use a Min-Heap of size k**:  
+   Instead of pushing all elements into the heap, maintain a heap of size `k` that stores the top k frequent elements. This reduces heap operations to `O(M log k)` instead of `O(M log M)`.
 
-2. **Use `collections.Counter` and `most_common` method:**  
-   The problem can be simplified by using `Counter(nums).most_common(k)` which gives top k elements efficiently.
+2. **Use `Counter` from `collections`**:  
+   Python’s `Counter` provides a convenient and efficient way to count frequencies, i.e., `count = Counter(nums)`.
 
-3. **Consider Bucket Sort Approach:**  
-   Since frequency counts are integers bounded by `n`, a bucket sort approach could achieve O(n) time complexity by grouping elements by frequency and scanning top buckets.
+3. **Use `heapq.nlargest`**:  
+   To simplify the code and improve readability, Python’s built-in `heapq.nlargest(k, iterable, key=...)` returns the k largest elements based on frequency without manually managing the heap.
+
+4. **Bucket Sort approach for O(N) average**:  
+   If performance is critical, use bucket sort to place elements by frequency and then iterate from highest to lowest frequency for an `O(N)` time solution.
 
 ---
 
-### Example Improved Version Using Counter and most_common
+### Improved Code Snippet Using Min-Heap of Size k
 
 ```python
 from collections import Counter
+import heapq
 
 class Solution:
     def topKFrequent(self, nums: List[int], k: int) -> List[int]:
-        return [num for num, _ in Counter(nums).most_common(k)]
+        count = Counter(nums)
+        heap = []
+        for num, freq in count.items():
+            if len(heap) < k:
+                heapq.heappush(heap, (freq, num))
+            else:
+                if freq > heap[0][0]:
+                    heapq.heapreplace(heap, (freq, num))
+        return [num for freq, num in heap]
 ```
 
-This is simpler and efficient, with time complexity O(n log k) generally due to `most_common`.
+- This maintains a heap with at most `k` elements.
+- Push: O(log k), done `M` times, total `O(M log k)`.
+- Extract result: `O(k)`.
 
 ---
 
-Overall, the provided solution works but can be optimized and simplified with more Pythonic approaches.
+### Summary Recap
+
+| Aspect            | Analysis                         |
+|-------------------|---------------------------------|
+| Time Complexity   | O(N + M log M + k log M) ~ O(N log N)  |
+| Space Complexity  | O(M + k)                        |
+| Strengths         | Clear logic, correct heap usage |
+| Weaknesses        | Not optimal for large M, pushes all items into heap |
+| Suggestions       | Use min-heap size k, Python's Counter, heapq.nlargest, bucket sort |
+
+---
+
+Feel free to ask if you want an explanation or implementation of any of the suggested improvements!
 '''
